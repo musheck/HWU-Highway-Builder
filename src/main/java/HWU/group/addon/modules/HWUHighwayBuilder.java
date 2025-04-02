@@ -108,6 +108,9 @@ public class HWUHighwayBuilder extends Module {
     private final SettingGroup sgRender = settings.createGroup("Render");
     private final SettingGroup sgMisc = settings.createGroup("Misc");
 
+    Module AutoTotem = Modules.get().get("auto-totem");
+    Setting<Mode> totemMode = (Setting<Mode>) AutoTotem.settings.get("mode");
+
     // Settings
     private final Setting<Boolean> enableFreeLook = sgGeneral.add(new BoolSetting.Builder()
             .name("free-look")
@@ -188,7 +191,14 @@ public class HWUHighwayBuilder extends Module {
     );
 
     private final Setting<Boolean> enableAutoTotem = sgSafety.add(new BoolSetting.Builder()
-            .name("nuker")
+            .name("auto-totem")
+            .description("Enable Autototem when activating this module.")
+            .defaultValue(true)
+            .build()
+    );
+
+    private final Setting<Boolean> disableAutoTotemAfterDeactivating = sgSafety.add(new BoolSetting.Builder()
+            .name("disable-auto-totem-after-deactivating")
             .description("Enable Autototem when activating this module.")
             .defaultValue(true)
             .build()
@@ -363,6 +373,7 @@ public class HWUHighwayBuilder extends Module {
         disableAllModules();
         resetState();
         DiscordRPC.stopRPC();
+        if(AutoTotem.isActive() && disableAutoTotemAfterDeactivating.get()) AutoTotem.toggle();
     }
 
     private void resetState() {
@@ -467,10 +478,7 @@ public class HWUHighwayBuilder extends Module {
             return;
         }
 
-        Module AutoTotem = Modules.get().get("auto-totem");
-        Setting<Mode> mode = (Setting<Mode>) AutoTotem.settings.get("mode");
-
-        if(mode.get() != Mode.Strict) {mode.set(Mode.Strict);}
+        if(totemMode.get() != Mode.Strict) {totemMode.set(Mode.Strict);}
         if (!AutoTotem.isActive() && enableAutoTotem.get()) { AutoTotem.toggle(); }
 
         Module HWUAutoEat = Modules.get().get("HWU-auto-eat");
