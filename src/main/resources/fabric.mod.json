@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "hwu-highway-builder",
+  "version": "1.4.7",
+  "name": "HWU Highway Builder",
+  "description": "A highway builder addon for meteor 1.21.1.",
+  "authors": [
+    "Highway Workers Union",
+    "musheck"
+  ],
+  "icon": "assets/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "meteor": [
+      "HWU.group.addon.HWU_HWBuilder"
+    ]
+  },
+  "mixins": [
+    "HWU.group.mixins.json"
+  ],
+  "custom": {
+    "meteor-client:color": "225,25,25"
+  },
+  "depends": {
+    "java": ">=21",
+    "minecraft": ["${mc_version}"],
+    "meteor-client": "*"
+  }
+}

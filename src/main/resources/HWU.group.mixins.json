@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "HWU.group.addon.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ChatMixin",
+    "ShulkerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
