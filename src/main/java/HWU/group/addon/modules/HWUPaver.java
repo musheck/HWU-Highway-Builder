@@ -361,8 +361,9 @@ public class HWUPaver extends Module {
                 Block block = mc.world.getBlockState(pos).getBlock();
 
                 if (cannotPlaceOrBreak(pos) && !blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
-                if (removeY119.get() && blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
-
+                // will remove blacklisted blocks if in path of the player and if removeY119 is enabled
+                if (direction == Direction.NORTH || direction == Direction.SOUTH && pos.getX() == playerX && removeY119.get() && blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
+                if (direction == Direction.EAST || direction == Direction.WEST && pos.getZ() == playerZ && removeY119.get() && blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
             }
         }
 
