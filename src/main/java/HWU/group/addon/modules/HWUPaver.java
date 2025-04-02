@@ -49,7 +49,7 @@ public class HWUPaver extends Module {
     IntSetting airPlaceDelay = (IntSetting) HWUHighwayBuilder.settings.get("air-place-delay");
     BoolSetting removeY119 = (BoolSetting) HWUHighwayBuilder.settings.get("remove-y119");
 
-    static Module HWUNuker = Modules.get().get("HWU-nuker");
+    Module HWUNuker = Modules.get().get("HWU-nuker");
     IntSetting maxBlocksPerTick = (IntSetting) HWUNuker.settings.get("max-blocks-per-tick");
     BoolSetting packetMine = (BoolSetting) HWUNuker.settings.get("packet-mine");
 
@@ -104,9 +104,9 @@ public class HWUPaver extends Module {
         return nonObsidianBlocksCount;
     }
 
-    static Setting<List<Block>> blacklist = (Setting<List<Block>>) HWUNuker.settings.get("blacklist");
+    Setting<List<Block>> blacklist = (Setting<List<Block>>) HWUNuker.settings.get("blacklist");
 
-    static List<Block> blacklistedBlocks = blacklist.get();
+    List<Block> blacklistedBlocks = blacklist.get();
 
     public int countNonObsidianBlocks() {
         int nonObsidianCount = 0;
@@ -326,7 +326,7 @@ public class HWUPaver extends Module {
             if ((mc.world.getBlockState(currentPos).getBlock() != Blocks.OBSIDIAN)
                 && StatsHandler.getDistanceTravelled() > 9 // Stop it from going back when the highway isn't paved behind, so it keeps moving forward
             ) {
-                if (!blacklistedBlocks.contains(block) || removeY119.get()) {
+                if (!blacklistedBlocks.contains(block)) {
                     foundNonObsidian = true;
                     nonObsidianBlock = currentPos;
                     break; // Stop checking further blocks
@@ -360,9 +360,9 @@ public class HWUPaver extends Module {
             for (BlockPos pos : positions) {
                 Block block = mc.world.getBlockState(pos).getBlock();
 
-                if (cannotPlaceOrBreak(pos) && !blacklistedBlocks.contains(block)) {
-                    remainingBlocksToBreak.add(pos);
-                }
+                if (cannotPlaceOrBreak(pos) && !blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
+                if (removeY119.get() && blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
+
             }
         }
 
