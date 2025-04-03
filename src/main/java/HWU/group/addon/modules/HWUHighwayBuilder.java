@@ -632,6 +632,7 @@ public class HWUHighwayBuilder extends Module {
             hasCreatedARestore = true;
         }
 
+        Module betterEChestFarmer = Modules.get().get("better-EChest-farmer");
         if (isGatheringItems()
                 || getTest() || betterEChestFarmer.isActive() // If it is farming E-Chests
                 || (!getTest() && wasEchestFarmerActive)      // If it is post E-Chest farming
