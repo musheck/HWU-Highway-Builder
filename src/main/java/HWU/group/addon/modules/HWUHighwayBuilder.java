@@ -13,6 +13,7 @@ import HWU.group.addon.helpers.StatsHandler;
 import baritone.api.BaritoneAPI;
 import baritone.api.pathing.goals.GoalBlock;
 import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
@@ -21,19 +22,24 @@ import meteordevelopment.meteorclient.systems.modules.combat.AutoTotem.Mode;
 import meteordevelopment.meteorclient.systems.modules.render.FreeLook;
 import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
+import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.EnderChestBlock;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -65,15 +71,19 @@ public class HWUHighwayBuilder extends Module {
     private BlockPos restockingStartPosition;
     private boolean isPause;
     public static boolean isPlacingShulker;
+    public static boolean isPlacingEchest;
     private int numberOfSlotsToSteal;
     private static boolean wasRestocking;
     private static BlockPos shulkerBlockPos;
+    private static BlockPos echestBlockPos;
     public static boolean hasOpenedShulker;
+    public static boolean hasOpenedEchest;
     private int slotNumber = 0;
     private boolean isBreakingShulker;
     public static boolean isPostRestocking;
     private boolean isProcessingTasks;
     private int hasLookedAtShulker = 0;
+    private int hasLookedAtEchest = 0;
     private boolean hasSwitchedToBestTool;
     private int stealingDelay = 0;
     private boolean stackRecentlyStolen;
@@ -110,6 +120,7 @@ public class HWUHighwayBuilder extends Module {
 
     Module AutoTotem = Modules.get().get("auto-totem");
     Setting<Mode> totemMode = (Setting<Mode>) AutoTotem.settings.get("mode");
+    Module betterEChestFarmer = Modules.get().get("better-EChest-farmer");
 
     // Settings
     private final Setting<Boolean> enableFreeLook = sgGeneral.add(new BoolSetting.Builder()
@@ -413,15 +424,19 @@ public class HWUHighwayBuilder extends Module {
         isPause = false;
         restockingStartPosition = null;
         isPlacingShulker = false;
+        isPlacingEchest = false;
         stacksStolen = 0;
         hasOpenedShulker = false;
+        hasOpenedEchest = false;
         slotNumber = 0;
         wasRestocking = false;
         shulkerBlockPos = null;
+        echestBlockPos = null;
         isBreakingShulker = true;
         isPostRestocking = false;
         isProcessingTasks = false;
         hasLookedAtShulker = 0;
+        hasLookedAtEchest = 0;
         stealingDelay = 0;
         hasSwitchedToBestTool = false;
         isStopping = false;
@@ -573,6 +588,16 @@ public class HWUHighwayBuilder extends Module {
         }
     }
 
+    private void moveShulkers(ScreenHandler handler, int i) {
+        if (handler.getSlot(i).hasStack() && Utils.canUpdate()) {
+            if (handler.getSlot(i).getStack().getItem() == Items.SHULKER_BOX) {
+                InvUtils.shiftClick().slotId(i);
+                stacksStolen++;
+                stackRecentlyStolen = true; // Mark that a stack was stolen
+            }
+        }
+    }
+
     private void handleInvalidPosition() {
         togglePaver(false); // No need to check for the "pave-highway" option as it is already being checked in the togglePaver(boolean) function
         goToHighwayCoords(false);
@@ -608,7 +633,6 @@ public class HWUHighwayBuilder extends Module {
             hasCreatedARestore = true;
         }
 
-        Module betterEChestFarmer = Modules.get().get("better-EChest-farmer");
         if (isGatheringItems()
                 || getTest() || betterEChestFarmer.isActive() // If it is farming E-Chests
                 || (!getTest() && wasEchestFarmerActive)      // If it is post E-Chest farming
@@ -860,6 +884,130 @@ public class HWUHighwayBuilder extends Module {
             wasEchestFarmerActive = false;
             miningLastEchest = false;
         }
+    }
+
+    private void handleShulkerRestocking() {
+        assert mc.world != null;
+        assert mc.player != null;
+        assert mc.interactionManager != null;
+
+        toggleAutoWalk(false);
+
+        if (!hasCreatedARestore) {
+            previousScreen = mc.currentScreen;
+            hasCreatedARestore = true;
+        }
+
+        if (isGatheringItems()
+                || getTest() || betterEChestFarmer.isActive() // If it is farming E-Chests
+                || (!getTest() && wasEchestFarmerActive)      // If it is post E-Chest farming
+        ) {
+            isRestocking = false;
+            return;
+        }
+
+        assert mc.player != null;
+        assert mc.world != null;
+
+        debug("handleShulkerRestocking() is on!");
+
+        debug("Player Position: %s", mc.player.getBlockPos());
+        debug("Restocking Start Position: %s", restockingStartPosition);
+
+        if (!restockingStartPosition.equals(mc.player.getBlockPos())) {
+            debug("Restocking Start Position doesn't match player position, pausing...");
+
+            if (!isPause) {
+                isPause = true;
+                return;
+            }
+
+            BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().setGoalAndPath(new GoalBlock(restockingStartPosition));
+            resumeBaritone();
+            debug("Baritone call number 1.");
+        } else {
+            isPause = false;
+        }
+
+        if (isPause) {
+            debug("Paused, returning...");
+            return;
+        }
+
+        Direction playerDir = getPlayerDirection();
+
+        // TODO:Add diagonal highway support
+        switch (playerDir) {
+            case NORTH -> echestBlockPos = new BlockPos(playerX, playerY, mc.player.getBlockZ() + 2);
+            case SOUTH -> echestBlockPos = new BlockPos(playerX, playerY, mc.player.getBlockZ() - 2);
+            case EAST -> echestBlockPos = new BlockPos(mc.player.getBlockX() - 2, playerY, playerZ);
+            case WEST -> echestBlockPos = new BlockPos(mc.player.getBlockX() + 2, playerY, playerZ);
+        }
+
+        debug("Player direction: %s, current position: %s", playerDir, echestBlockPos);
+        debug("Echest block position: %s", echestBlockPos);
+
+        if (hasLookedAtEchest < 15) { // To add a 15 tick delay
+            toggleSneak(false);
+
+            if (hasLookedAtEchest == 0) {
+                InvUtils.swap(8, false);
+                lookAtBlock(echestBlockPos.withY(playerY - 1)); // To ensure the enderchest is being placed correctly...
+            }
+
+            hasLookedAtEchest++;
+            isPlacingEchest = true;
+            return;
+        }
+
+        if (mc.world.getBlockState(echestBlockPos).getBlock() instanceof EnderChestBlock) {
+            debug("Enderchest placed successfully at %s", echestBlockPos);
+        } else {
+            if (BlockUtils.canPlace(echestBlockPos, false) && !BlockUtils.canPlace(echestBlockPos, true)) return;
+            debug("Placing %s at %s", Items.ENDER_CHEST, echestBlockPos);
+            FindItemResult echest = InvUtils.findInHotbar(Items.ENDER_CHEST);
+            if (!echest.found()) {
+                debug("No Enderchests in hotbar, disabling.");
+                toggle();
+                return;
+            }
+            BlockUtils.place(echestBlockPos, echest, true, 0, false);
+            return;
+        }
+
+        if (!hasSwitchedToFirstSlot) { // Switch to the first slot so the enderchest can be opened
+            InvUtils.swap(0, false);
+            hasSwitchedToFirstSlot = true;
+            return;
+        }
+
+        if (!hasOpenedEchest) {
+            toggleSneak(false);
+            // Open the shulker
+            mc.player.networkHandler.sendPacket(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND,
+                    new BlockHitResult(Vec3d.ofCenter(echestBlockPos), Direction.DOWN,
+                            echestBlockPos, false), 0));
+
+            hasOpenedEchest = true;
+            return;
+        }
+
+        if (mc.player.currentScreenHandler instanceof GenericContainerScreenHandler echestHandler) {
+            // Loop through second and third row (slots 9 to 26)
+            for (int slot = 9; slot < 27; slot++) {
+                ItemStack stack = echestHandler.getSlot(slot).getStack();
+
+                // Check if the slot contains a Shulker Box
+                if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof ShulkerBoxBlock) {
+                    checkShulkerForEnderChests(stack);
+                }
+            }
+        }
+
+    }
+
+    private void checkShulkerForEnderChests(ItemStack shulkerStack) {
+        // to be implemented...
     }
 
     private boolean validateInitialConditions() {
