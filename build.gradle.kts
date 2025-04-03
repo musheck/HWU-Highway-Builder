@@ -37,9 +37,6 @@ tasks {
         )
 
         inputs.properties(propertyMap)
-
-        filteringCharset = "UTF-8"
-
         filesMatching("fabric.mod.json") {
             expand(propertyMap)
         }
