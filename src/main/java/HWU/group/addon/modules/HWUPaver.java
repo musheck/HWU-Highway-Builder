@@ -360,6 +360,8 @@ public class HWUPaver extends Module {
             for (BlockPos pos : positions) {
                 Block block = mc.world.getBlockState(pos).getBlock();
 
+                if (block != Blocks.NETHER_PORTAL || block != Blocks.BEDROCK) break;
+
                 if (cannotPlaceOrBreak(pos) && !blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
                 // will remove blacklisted blocks if in path of the player and if removeY119 is enabled
                 if (direction == Direction.NORTH || direction == Direction.SOUTH && pos.getX() == playerX && removeY119.get() && blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);

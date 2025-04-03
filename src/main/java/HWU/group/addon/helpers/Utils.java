@@ -207,7 +207,7 @@ public class Utils {
 
         for (int i = 0; i < 9; i++) {
             ItemStack itemStack = mc.player.getInventory().getStack(i);
-            if (itemStack.getItem() instanceof ToolItem) {
+            if (itemStack.getItem() instanceof MiningToolItem) {
                 double speed = itemStack.getMiningSpeedMultiplier(blockState);
 
                 if (speed > bestSpeed) {

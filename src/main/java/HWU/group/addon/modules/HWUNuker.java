@@ -47,7 +47,7 @@ public class HWUNuker extends Module {
     private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
         .name("delay")
         .description("Delay in ticks between breaking blocks.")
-        .defaultValue(0)
+        .defaultValue(1)
         .build()
     );
 
