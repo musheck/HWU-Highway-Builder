@@ -44,9 +44,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static HWU.group.addon.modules.HWUAutoWalk.isStopping;
-import static meteordevelopment.meteorclient.utils.world.BlockUtils.canPlaceBlock;
-import static meteordevelopment.meteorclient.utils.world.BlockUtils.getPlaceSide;
 import static meteordevelopment.meteorclient.utils.Utils.*;
+import static meteordevelopment.meteorclient.utils.world.BlockUtils.*;
 
 public class Utils {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
