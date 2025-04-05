@@ -63,8 +63,7 @@ public class HWUPaver extends Module {
     public static int ticksTracker;
     private Direction direction;
     private final List<BlockPos> remainingBlocksToBreak = new ArrayList<>();
-    //private int placementAttempts = 0;
-    //private BlockPos previouspos;
+    List<BlockPos> placementAttempts = new ArrayList<>();
 
     private final ShapeMode shapeModeBreak = getRenderMineShape();
     private final Color lineColor = getRenderMineLineColor();
@@ -140,6 +139,7 @@ public class HWUPaver extends Module {
         lockRotation();
         toggleAutoWalk(true);
         nonObsidianBlocksCount = countNonObsidianBlocks();
+        placementAttempts.add(mc.player.getBlockPos());
     }
 
     @Override
@@ -167,6 +167,8 @@ public class HWUPaver extends Module {
 
         ticksTracker++;
         ticksPassed++;
+
+        if(placementAttempts.size() > 5000) placementAttempts.clear(); placementAttempts.add(mc.player.getBlockPos());
 
         if (tickCounter++ >= nextInterval) { // To reduce lag all of the time
             nonObsidianBlocksCount = countNonObsidianBlocks();
@@ -362,7 +364,7 @@ public class HWUPaver extends Module {
 
                 if (block != Blocks.NETHER_PORTAL || block != Blocks.BEDROCK) break;
 
-                if (cannotPlaceOrBreak(pos) && !blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
+                if (cannotPlaceOrBreak(pos) && !blacklistedBlocks.contains(block) || removeY119.get()) remainingBlocksToBreak.add(pos);
                 // will remove blacklisted blocks if in path of the player and if removeY119 is enabled
                 if (direction == Direction.NORTH || direction == Direction.SOUTH && pos.getX() == playerX && removeY119.get() && blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
                 if (direction == Direction.EAST || direction == Direction.WEST && pos.getZ() == playerZ && removeY119.get() && blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
@@ -407,7 +409,7 @@ public class HWUPaver extends Module {
 
                     double distance = distanceBetweenPlayerAndEndOfPavement();
 
-                    toggleSneak(distance <= 1.498);
+                    //toggleSneak(distance <= 1.498);
 
                     if (distance <= 0.7) {
                         toggleAutoWalk(false);
@@ -420,15 +422,15 @@ public class HWUPaver extends Module {
                     assert mc.world != null;
                     switchToItem(Items.OBSIDIAN);
 
-                    if (mc.world.getBlockState(currentPos.down()).getBlock() == Blocks.AIR && enableAirPlace.get()) {
-                        // If normal placement fails, try air placing
+                    if (placementAttempts.contains(currentPos) && enableAirPlace.get()) {
+                        // airplace if the block below is air (needs rewriting to if no face to place against)
                         if (blockPlaceTicks % airPlaceDelay.get() != 0) return;
 
-                        boolean airPlaced = airPlace(Items.OBSIDIAN, currentPos, Direction.DOWN);
-                        if (airPlaced) {
+                        if (airPlace(Items.OBSIDIAN, currentPos, Direction.DOWN)) {
                             debug("Airplace attempt at: x: %s y: %s z: %s", currentPos.getX(), currentPos.getY(), currentPos.getZ());
                             addObsidianPlaced();
                             obsidianPlacedThisSession++;
+                            placementAttempts.add(currentPos);
 
                             if (renderPlacing.get()) {
                                 RenderUtils.renderTickingBlock(currentPos, sideColorPlacement, lineColorPlacement, shapeModePlacement, 0, 8, true, false);
@@ -443,22 +445,24 @@ public class HWUPaver extends Module {
                     if (!hasRotated) {
                         lookAtBlock(currentPos);
                         hasRotated = true;
-                        return;
+                        //return;
                     }
 
                     // Try placing normally
-                    boolean placed = BlockUtils.place(currentPos, obsidianSlot, false, 0, true, true, false);
-                    if (placed) {
-                        debug("Placement attempt at: x: %s y: %s z: %s", currentPos.getX(), currentPos.getY(), currentPos.getZ());
-                        addObsidianPlaced();
-                        obsidianPlacedThisSession++;
+                    if (!placementAttempts.contains(currentPos)) {
+                        if (BlockUtils.place(currentPos, obsidianSlot, false, 0, true, true, false)) {
+                            debug("Placement attempt at: x: %s y: %s z: %s", currentPos.getX(), currentPos.getY(), currentPos.getZ());
+                            addObsidianPlaced();
+                            obsidianPlacedThisSession++;
+                            placementAttempts.add(currentPos);
 
-                        if (renderPlacing.get()) {
-                            RenderUtils.renderTickingBlock(currentPos, sideColorPlacement, lineColorPlacement, shapeModePlacement, 0, 8, true, false);
+                            if (renderPlacing.get()) {
+                                RenderUtils.renderTickingBlock(currentPos, sideColorPlacement, lineColorPlacement, shapeModePlacement, 0, 8, true, false);
+                            }
+
+                            hasRotated = false;
+                            return;
                         }
-
-                        hasRotated = false;
-                        return;
                     }
                     hasRotated = false;
                 }
