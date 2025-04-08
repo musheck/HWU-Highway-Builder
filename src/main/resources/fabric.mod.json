@@ -8,6 +8,9 @@
     "Highway Workers Union",
     "musheck"
   ],
+  "contact": {
+    "repo": "https://github.com/musheck/HWU-Highway-Builder"
+  },
   "icon": "assets/icon.png",
   "environment": "client",
   "entrypoints": {

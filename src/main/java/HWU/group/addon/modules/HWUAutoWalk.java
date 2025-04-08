@@ -9,8 +9,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import HWU.group.addon.HWU_HWBuilder;
 import org.jetbrains.annotations.NotNull;
-
-import static HWU.group.addon.helpers.Utils.debug;
 import static HWU.group.addon.helpers.Utils.isGatheringItems;
 import static HWU.group.addon.modules.HWUHighwayBuilder.*;
 import static HWU.group.addon.modules.HWUAutoEat.getIsEating;
@@ -47,11 +45,6 @@ public class HWUAutoWalk extends Module {
                 || isStopping // Some clients deal with pressForward() as a toggleable function, not a function that needs to be called on every tick
                               // Without this, some clients may face issues like the player not stopping when it needs to
         ) {
-            debug("betterEChestFarmer: %s", betterEChestFarmer.isActive());
-            debug("isGatheringItems: %s", isGatheringItems());
-            debug("getIsBreaking: %s", getIsBreaking());
-            debug("getIsEating: %s", getIsEating());
-            debug("getTest: %s", getTest());
             releaseForward();
             return;
         }

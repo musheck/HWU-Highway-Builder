@@ -14,6 +14,7 @@ import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
+import meteordevelopment.meteorclient.utils.player.Rotations;
 import meteordevelopment.meteorclient.utils.render.RenderUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
@@ -38,7 +39,7 @@ import static HWU.group.addon.helpers.Utils.toggleAutoWalk;
 import static HWU.group.addon.modules.HWUHighwayBuilder.*;
 import static HWU.group.addon.modules.HWUAutoEat.getIsEating;
 import static HWU.group.addon.modules.HWUKillAura.isAttacking;
-import static HWU.group.addon.modules.HWUNuker.getIsBreaking;
+import static HWU.group.addon.modules.HWUNuker.*;
 
 public class HWUPaver extends Module {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
@@ -48,9 +49,11 @@ public class HWUPaver extends Module {
     BoolSetting enableAirPlace = (BoolSetting) HWUHighwayBuilder.settings.get("enable-air-place");
     IntSetting airPlaceDelay = (IntSetting) HWUHighwayBuilder.settings.get("air-place-delay");
     BoolSetting removeY119 = (BoolSetting) HWUHighwayBuilder.settings.get("remove-y119");
+    BoolSetting rotate = (BoolSetting) HWUHighwayBuilder.settings.get("rotate");
 
     Module HWUNuker = Modules.get().get("HWU-nuker");
     IntSetting maxBlocksPerTick = (IntSetting) HWUNuker.settings.get("max-blocks-per-tick");
+    IntSetting nukerDelay = (IntSetting) HWUNuker.settings.get("delay");
     BoolSetting packetMine = (BoolSetting) HWUNuker.settings.get("packet-mine");
 
     private boolean baritoneCalled = false;
@@ -64,6 +67,9 @@ public class HWUPaver extends Module {
     private Direction direction;
     private final List<BlockPos> remainingBlocksToBreak = new ArrayList<>();
     List<BlockPos> placementAttempts = new ArrayList<>();
+
+    private int delayTimer = 0;
+    private BlockPos currentBreaking = null;
 
     private final ShapeMode shapeModeBreak = getRenderMineShape();
     private final Color lineColor = getRenderMineLineColor();
@@ -151,6 +157,7 @@ public class HWUPaver extends Module {
         hasRotated = false;
         needsToStop = false;
         remainingBlocksToBreak.clear();
+        currentBreaking = null;
         ticksPassed = 0;
         obsidianPlacedThisSession = 0;
         nonObsidianBlocksCount = 0;
@@ -167,8 +174,8 @@ public class HWUPaver extends Module {
 
         ticksTracker++;
         ticksPassed++;
-
         if(placementAttempts.size() > 5000) placementAttempts.clear(); placementAttempts.add(mc.player.getBlockPos());
+
 
         if (tickCounter++ >= nextInterval) { // To reduce lag all of the time
             nonObsidianBlocksCount = countNonObsidianBlocks();
@@ -355,7 +362,6 @@ public class HWUPaver extends Module {
 
 
         boolean hasPlaceableBlocks = false;
-        int count = 0;
 
         // First time or if we've finished the previous batch, refresh the list
         if (remainingBlocksToBreak.isEmpty()) {
@@ -364,40 +370,45 @@ public class HWUPaver extends Module {
 
                 if (block == Blocks.NETHER_PORTAL || block == Blocks.BEDROCK) break;
 
-                if (cannotPlaceOrBreak(pos) && !blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
-                // will remove blacklisted blocks if in path of the player and if removeY119 is enabled
-                if (direction == Direction.NORTH || direction == Direction.SOUTH && pos.getX() == playerX && removeY119.get() && blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
-                if (direction == Direction.EAST || direction == Direction.WEST && pos.getZ() == playerZ && removeY119.get() && blacklistedBlocks.contains(block)) remainingBlocksToBreak.add(pos);
+                boolean isBlacklisted = blacklistedBlocks.contains(block);
+                boolean canBreakOrPlace = cannotPlaceOrBreak(pos);
+
+                boolean isInFront = (
+                        (direction == Direction.NORTH || direction == Direction.SOUTH) && Math.abs(pos.getX()) == Math.abs(playerX) ||
+                                (direction == Direction.EAST || direction == Direction.WEST) && Math.abs(pos.getZ()) == Math.abs(playerZ)
+                );
+
+                if ((canBreakOrPlace && !isBlacklisted) || (isInFront && removeY119.get()) && isBlacklisted) remainingBlocksToBreak.add(pos);
             }
         }
 
         // If we have blocks to break, focus on that
-        if (!remainingBlocksToBreak.isEmpty()) {
+        if (!remainingBlocksToBreak.isEmpty() && !isBreaking) {
             toggleAutoWalk(false);
 
-            Iterator<BlockPos> iterator = remainingBlocksToBreak.iterator();
-            while (iterator.hasNext() && count < maxBlocksPerTick.get()) {
-                BlockPos currentPos = iterator.next();
-                // TODO:Add a configurable delay (I think 1 tick should be enough) before continuing to the next block so the player doesn't rubberband
-                breakBlock(currentPos);
-
-                if (renderBreaking.get()) {
-                    RenderUtils.renderTickingBlock(
-                            currentPos,
-                            sideColor,
-                            lineColor,
-                            shapeModeBreak,
-                            0,
-                            8,
-                            true,
-                            false
-                    );
-                }
-                iterator.remove();
-                count++;
+            // Wait if in delay
+            if (delayTimer > 0) {
+                delayTimer--;
+                return;
             }
 
-            return; // Exit here if we're still breaking blocks
+            // If not already targeting a block, get one
+            if (currentBreaking == null && !remainingBlocksToBreak.isEmpty()) {
+                currentBreaking = remainingBlocksToBreak.removeFirst();
+            }
+
+            // Break the current block
+            if (currentBreaking != null) {
+                breakBlock(currentBreaking);
+                isBreaking = true;
+
+                if (renderBreaking.get()) RenderUtils.renderTickingBlock(currentBreaking, sideColor, lineColor, shapeModeBreak, 0, 8, true, true);
+                // Prepare for next tick
+                delayTimer = nukerDelay.get(); // Add delay
+                // Move on next tick
+                if(mc.world.getBlockState(currentBreaking).getBlock() == Blocks.AIR) isBreaking = false; currentBreaking = null;
+            }
+            return; // Don't continue with other tasks this tick
         }
 
         for (BlockPos currentPos : positions) {
@@ -408,10 +419,11 @@ public class HWUPaver extends Module {
                     if (getIsPausing()) return;
 
                     double distance = distanceBetweenPlayerAndEndOfPavement();
+                    debug("Distance = %s", distance);
 
                     //toggleSneak(distance <= 1.498);
 
-                    if (distance <= 0.7) {
+                    if (distance <= 0.8) {
                         toggleAutoWalk(false);
                         needsToStop = true;
                     } else {
@@ -428,8 +440,6 @@ public class HWUPaver extends Module {
 
                         if (airPlace(Items.OBSIDIAN, currentPos, Direction.DOWN)) {
                             debug("Airplace attempt at: x: %s y: %s z: %s", currentPos.getX(), currentPos.getY(), currentPos.getZ());
-                            addObsidianPlaced();
-                            obsidianPlacedThisSession++;
                             placementAttempts.add(currentPos);
 
                             if (renderPlacing.get()) {
@@ -473,8 +483,6 @@ public class HWUPaver extends Module {
             || !foundNonObsidian || !getIsBreaking()) {
             lockRotation();
             debug("Auto walk 3.");
-            debug("needsToStop: %s. hasPlaceableBlocks: %s.", needsToStop, hasPlaceableBlocks);
-            debug("foundNonObsidian: %s.", foundNonObsidian);
             toggleAutoWalk(true);
         }
     }

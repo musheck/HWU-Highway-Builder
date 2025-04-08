@@ -44,9 +44,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static HWU.group.addon.modules.HWUAutoWalk.isStopping;
-import static meteordevelopment.meteorclient.utils.world.BlockUtils.canPlaceBlock;
-import static meteordevelopment.meteorclient.utils.world.BlockUtils.getPlaceSide;
 import static meteordevelopment.meteorclient.utils.Utils.*;
+import static meteordevelopment.meteorclient.utils.world.BlockUtils.*;
 
 public class Utils {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
@@ -492,6 +491,8 @@ public class Utils {
         if (stackTrace.length > 2) {
             StackTraceElement caller = stackTrace[2];
             callerFileName = caller.getFileName(); // Retrieves the file name
+            assert callerFileName != null;
+            callerFileName = callerFileName.replace(".java", "");
         }
 
         String messageWithTimestamp = String.format("[%s] [%s] %s", timestamp, callerFileName, formattedMessage);

@@ -25,8 +25,11 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import HWU.group.addon.HWU_HWBuilder;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.*;
 
@@ -47,7 +50,7 @@ public class HWUNuker extends Module {
     private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
         .name("delay")
         .description("Delay in ticks between breaking blocks.")
-        .defaultValue(0)
+        .defaultValue(1)
         .build()
     );
 
@@ -321,7 +324,9 @@ public class HWUNuker extends Module {
     }
 
     private void breakBlock(BlockPos blockPos) {
+        assert mc.interactionManager != null;
         switchToBestTool(blockPos);
+
         setIsBreaking(true);
         if (packetMine.get()) {
             Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos, BlockUtils.getDirection(blockPos)));

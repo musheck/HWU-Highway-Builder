@@ -319,7 +319,7 @@ public class HWUAutoEat extends Module {
                 // Handle EGaps separately
                 if (eGapBlacklisted) {
                     // Only select EGap if burning and conditions are met
-                    if (mc.player.isOnFire() && eatEGaps.get() && !mc.player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)) {
+                    if ((mc.player.isOnFire() && eatEGaps.get() && !mc.player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)) || mc.player.getHealth() < healthThreshold.get()) {
                         return i;
                     }
                 } else {

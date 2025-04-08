@@ -74,14 +74,23 @@ public class BlockPosHelper {
                 positions.add(new BlockPos(playerX + 1, playerY - 1, mc.player.getBlockZ()));
                 positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ()));
 
-                positions.add(new BlockPos(playerX, playerY - 1, mc.player.getBlockZ() + 3));
+                positions.add(new BlockPos(playerX, playerY - 1, mc.player.getBlockZ() - 1));
                 if (placeRails.get()) {
-                    positions.add(new BlockPos(playerX - 3, playerY, mc.player.getBlockZ() + 1));
-                    positions.add(new BlockPos(playerX + 2, playerY, mc.player.getBlockZ() + 1));
+                    positions.add(new BlockPos(playerX - 3, playerY, mc.player.getBlockZ() - 1));
+                    positions.add(new BlockPos(playerX + 2, playerY, mc.player.getBlockZ() - 1));
                 }
-                positions.add(new BlockPos(playerX - 2, playerY - 1, mc.player.getBlockZ() + 1));
-                positions.add(new BlockPos(playerX + 1, playerY - 1, mc.player.getBlockZ() + 1));
-                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() + 1));
+                positions.add(new BlockPos(playerX - 2, playerY - 1, mc.player.getBlockZ() - 1));
+                positions.add(new BlockPos(playerX + 1, playerY - 1, mc.player.getBlockZ() - 1));
+                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() - 1));
+
+                positions.add(new BlockPos(playerX, playerY - 1, mc.player.getBlockZ() - 2));
+                if (placeRails.get()) {
+                    positions.add(new BlockPos(playerX - 3, playerY, mc.player.getBlockZ() - 2));
+                    positions.add(new BlockPos(playerX + 2, playerY, mc.player.getBlockZ() - 2));
+                }
+                positions.add(new BlockPos(playerX - 2, playerY - 1, mc.player.getBlockZ() - 2));
+                positions.add(new BlockPos(playerX + 1, playerY - 1, mc.player.getBlockZ() - 2));
+                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() - 2));
 
                 yield positions.toArray(new BlockPos[0]); // Convert list back to array
             }
@@ -133,6 +142,15 @@ public class BlockPosHelper {
                 positions.add(new BlockPos(mc.player.getBlockX() + 1, playerY - 1, playerZ - 1));
                 positions.add(new BlockPos(mc.player.getBlockX() + 1, playerY - 1, playerZ + 1));
 
+                positions.add(new BlockPos(mc.player.getBlockX() + 2, playerY - 1, playerZ));
+                if (placeRails.get()) {
+                    positions.add(new BlockPos(mc.player.getBlockX() + 2, playerY, playerZ + 2));
+                    positions.add(new BlockPos(mc.player.getBlockX() + 2, playerY, playerZ - 3));
+                }
+                positions.add(new BlockPos(mc.player.getBlockX() + 2, playerY - 1, playerZ - 2));
+                positions.add(new BlockPos(mc.player.getBlockX() + 2, playerY - 1, playerZ - 1));
+                positions.add(new BlockPos(mc.player.getBlockX() + 2, playerY - 1, playerZ + 1));
+
                 yield positions.toArray(new BlockPos[0]); // Convert list back to array
             }
             case SOUTH -> {
@@ -143,8 +161,8 @@ public class BlockPosHelper {
                     positions.add(new BlockPos(playerX + 3, playerY, mc.player.getBlockZ() - 3));
                 }
                 positions.add(new BlockPos(playerX + 2, playerY - 1, mc.player.getBlockZ() - 3));
-                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() - 3));
                 positions.add(new BlockPos(playerX + 1, playerY - 1, mc.player.getBlockZ() - 3));
+                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() - 3));
 
                 positions.add(new BlockPos(playerX, playerY - 1, mc.player.getBlockZ() - 2));
                 if (placeRails.get()) {
@@ -152,8 +170,8 @@ public class BlockPosHelper {
                     positions.add(new BlockPos(playerX + 3, playerY, mc.player.getBlockZ() - 2));
                 }
                 positions.add(new BlockPos(playerX + 2, playerY - 1, mc.player.getBlockZ() - 2));
-                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() - 2));
                 positions.add(new BlockPos(playerX + 1, playerY - 1, mc.player.getBlockZ() - 2));
+                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() - 2));
 
                 positions.add(new BlockPos(playerX, playerY - 1, mc.player.getBlockZ() - 1));
                 if (placeRails.get()) {
@@ -161,8 +179,8 @@ public class BlockPosHelper {
                     positions.add(new BlockPos(playerX + 3, playerY, mc.player.getBlockZ() - 1));
                 }
                 positions.add(new BlockPos(playerX + 2, playerY - 1, mc.player.getBlockZ() - 1));
-                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() - 1));
                 positions.add(new BlockPos(playerX + 1, playerY - 1, mc.player.getBlockZ() - 1));
+                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() - 1));
 
                 positions.add(new BlockPos(playerX, playerY - 1, mc.player.getBlockZ()));
                 if (placeRails.get()) {
@@ -170,8 +188,8 @@ public class BlockPosHelper {
                     positions.add(new BlockPos(playerX + 3, playerY, mc.player.getBlockZ()));
                 }
                 positions.add(new BlockPos(playerX + 2, playerY - 1, mc.player.getBlockZ()));
-                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ()));
                 positions.add(new BlockPos(playerX + 1, playerY - 1, mc.player.getBlockZ()));
+                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ()));
 
                 positions.add(new BlockPos(playerX, playerY - 1, mc.player.getBlockZ() + 1));
                 if (placeRails.get()) {
@@ -179,8 +197,8 @@ public class BlockPosHelper {
                     positions.add(new BlockPos(playerX + 3, playerY, mc.player.getBlockZ() + 1));
                 }
                 positions.add(new BlockPos(playerX + 2, playerY - 1, mc.player.getBlockZ() + 1));
-                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() + 1));
                 positions.add(new BlockPos(playerX + 1, playerY - 1, mc.player.getBlockZ() + 1));
+                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() + 1));
 
                 positions.add(new BlockPos(playerX, playerY - 1, mc.player.getBlockZ() + 2));
                 if (placeRails.get()) {
@@ -188,8 +206,8 @@ public class BlockPosHelper {
                     positions.add(new BlockPos(playerX + 3, playerY, mc.player.getBlockZ() + 2));
                 }
                 positions.add(new BlockPos(playerX + 2, playerY - 1, mc.player.getBlockZ() + 2));
-                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() + 2));
                 positions.add(new BlockPos(playerX + 1, playerY - 1, mc.player.getBlockZ() + 2));
+                positions.add(new BlockPos(playerX - 1, playerY - 1, mc.player.getBlockZ() + 2));
 
                 yield positions.toArray(new BlockPos[0]); // Convert list back to array
             }
@@ -240,6 +258,15 @@ public class BlockPosHelper {
                 positions.add(new BlockPos(mc.player.getBlockX() - 1, playerY - 1, playerZ + 2));
                 positions.add(new BlockPos(mc.player.getBlockX() - 1, playerY - 1, playerZ + 1));
                 positions.add(new BlockPos(mc.player.getBlockX() - 1, playerY - 1, playerZ - 1));
+
+                positions.add(new BlockPos(mc.player.getBlockX() - 2, playerY - 1, playerZ));
+                if (placeRails.get()) {
+                    positions.add(new BlockPos(mc.player.getBlockX() - 2, playerY, playerZ - 2));
+                    positions.add(new BlockPos(mc.player.getBlockX() - 2, playerY, playerZ + 3));
+                }
+                positions.add(new BlockPos(mc.player.getBlockX() - 2, playerY - 1, playerZ + 2));
+                positions.add(new BlockPos(mc.player.getBlockX() - 2, playerY - 1, playerZ + 1));
+                positions.add(new BlockPos(mc.player.getBlockX() - 2, playerY - 1, playerZ - 1));
 
                 yield positions.toArray(new BlockPos[0]); // Convert list back to array
             }
