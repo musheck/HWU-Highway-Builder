@@ -16,6 +16,7 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.world.PacketMine;
+import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
@@ -151,12 +152,12 @@ public class BetterEChestFarmer extends Module {
         setKeyPressed(mc.options.leftKey, false);
         
         if (getIsEating()) {
-            debug("Pausing because getIsEating()=true.");
+            debug("Pausing -> Eating.");
             return;
         }
 
         if (isAttacking()) {
-            debug("Pausing because isAttacking()=true.");
+            debug("Pausing -> Attacking.");
             return;
         }
 
@@ -164,7 +165,7 @@ public class BetterEChestFarmer extends Module {
             startPos = mc.player.getBlockPos();
 
             if (startPos == null) {
-                debug("Pausing because startPos=null.");
+                debug("Pausing because of invalid startPos.");
                 return;
             }
 
@@ -180,7 +181,7 @@ public class BetterEChestFarmer extends Module {
                 case WEST -> target = new BlockPos(mc.player.getBlockX() + 2, playerY, playerZ);
             }
 
-            debug("Player direction: %s, current position: %s", playerDir, target);
+            debug("Player direction: %s, current position: x: %s y: %s z: %s", playerDir.getName(), target.getX(), target.getY(), target.getZ());
             initialSetupDone = true;
         }
 

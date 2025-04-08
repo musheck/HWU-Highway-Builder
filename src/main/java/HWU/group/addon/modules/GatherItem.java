@@ -166,7 +166,7 @@ public class GatherItem extends Module {
         if (targetLocation != null) {
             Module betterEChestFarmer = Modules.get().get("better-EChest-farmer");
             if (!betterEChestFarmer.isActive() || !getTest()) {
-                debug("Going to %s", targetLocation);
+                debug("Going to x: %s y: %s z: %s", targetLocation.getX(), targetLocation.getY(), targetLocation.getZ());
                 BaritoneAPI.getProvider().getPrimaryBaritone()
                         .getCustomGoalProcess()
                         .setGoalAndPath(new GoalBlock(targetLocation));
