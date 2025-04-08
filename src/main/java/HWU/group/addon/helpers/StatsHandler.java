@@ -1,5 +1,6 @@
 package HWU.group.addon.helpers;
 
+import HWU.group.addon.modules.HWUHighwayBuilder;
 import HWU.group.addon.modules.HWUPaver;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.util.math.Direction;
@@ -39,24 +40,22 @@ public class StatsHandler {
     }
 
     public static double getPlacementsPerSecond() {
-        if (!Modules.get().get("HWU-Paver").isActive()) return -1.0;
+        if (!Modules.get().get("HWU-highway-builder").isActive()) return -1.0;
 
-        double obsidianPlacedThisSession = HWUPaver.getObsidianPlacedThisSession();
-        double ticksPassed = HWUPaver.getTicksPassed();
+        double obsidianPlaced = HWUHighwayBuilder.getObsidianPlaced();
+        double ticksPassed = HWUHighwayBuilder.getTicksPassed();
 
-        if (obsidianPlacedThisSession == 0 || ticksPassed == 0) return 0.0; // Avoid division by zero
+        if (obsidianPlaced == 0 || ticksPassed == 0) return 0.0; // Avoid division by zero
 
-        return obsidianPlacedThisSession / (ticksPassed / 20.0);
+        return obsidianPlaced / (ticksPassed / 20.0);
     }
 
-
     public static long getETA() {
-        long blocksLeft = getDistanceLeft();
-        long remainingBlocks = ((long) getNonObsidianBlocksCount() / 98) * blocksLeft;
+        long remainingBlocks = getDistanceLeft() * 6L;
         long placementsPerSecond = (long) getPlacementsPerSecond();
 
         if (placementsPerSecond <= 0) return (long) -2.0; // To display "Waiting..."
-        if (HWUPaver.getTicksPassed() <= 120 && placementsPerSecond <= 50) return (long) -1.0; // To display "Calculating..."
+        if (HWUHighwayBuilder.getTicksPassed() <= 120 && placementsPerSecond <= 50) return (long) -1.0; // To display "Calculating..."
 
         return ((long) ((double) remainingBlocks / placementsPerSecond) * 20);
     }
