@@ -28,8 +28,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Tameable;
 import net.minecraft.entity.mob.EndermanEntity;
-import net.minecraft.entity.mob.ZombifiedPiglinEntity;
+import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.PiglinEntity;
 import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
@@ -196,6 +198,7 @@ public class HWUKillAura extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
+        assert mc.player != null; assert mc.world != null;
         if (pauseTimer > 0) {
             pauseTimer--;
             return;
@@ -309,7 +312,7 @@ public class HWUKillAura extends Module {
                 case EndermanEntity enderman when !enderman.isAngry() -> {
                     return false;
                 }
-                case ZombifiedPiglinEntity piglin when !piglin.isAttacking() -> {
+                case PiglinEntity piglin when !piglin.isAttacking() -> {
                     return false;
                 }
                 case WolfEntity wolf when !wolf.isAttacking() -> {
@@ -326,10 +329,10 @@ public class HWUKillAura extends Module {
         }
 
         // TODO:This probably doesn't work, maybe check and remove it if it's not needed
-        if (entity instanceof AnimalEntity animal) {
+        if (entity instanceof HostileEntity hostile) {
             return switch (mobAgeFilter.get()) {
-                case Baby -> animal.isBaby();
-                case Adult -> !animal.isBaby();
+                case Baby -> hostile.isBaby();
+                case Adult -> !hostile.isBaby();
                 case Both -> true;
             };
         }
