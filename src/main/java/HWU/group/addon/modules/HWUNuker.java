@@ -37,7 +37,6 @@ import static HWU.group.addon.helpers.Utils.switchToBestTool;
 import static HWU.group.addon.modules.HWUHighwayBuilder.*;
 import static HWU.group.addon.modules.HWUKillAura.isAttacking;
 import static HWU.group.addon.modules.LavaSourceRemover.isRemovingLavaSources;
-import static meteordevelopment.meteorclient.utils.world.BlockUtils.getPlaceSide;
 
 // TODO:Add diagonal highway support
 //  Maybe type out the individual block positions in BlockPosHelper or look at Meteor's code for some inspiration
@@ -327,12 +326,6 @@ public class HWUNuker extends Module {
     private void breakBlock(BlockPos blockPos) {
         assert mc.interactionManager != null;
         switchToBestTool(blockPos);
-
-        // performs a left click on a block to update it ensuring its not a ghost block...
-        Vec3d hitPos = Vec3d.ofCenter(blockPos);
-        Direction face = Direction.UP;
-        BlockHitResult hitResult = new BlockHitResult(hitPos, face, blockPos, false);
-        mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, hitResult);
 
         setIsBreaking(true);
         if (packetMine.get()) {
