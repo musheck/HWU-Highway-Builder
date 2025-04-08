@@ -491,6 +491,8 @@ public class Utils {
         if (stackTrace.length > 2) {
             StackTraceElement caller = stackTrace[2];
             callerFileName = caller.getFileName(); // Retrieves the file name
+            assert callerFileName != null;
+            callerFileName = callerFileName.replace(".java", "");
         }
 
         String messageWithTimestamp = String.format("[%s] [%s] %s", timestamp, callerFileName, formattedMessage);
