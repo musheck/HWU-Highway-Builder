@@ -54,7 +54,7 @@
 - Configure hotbarreplenish with obsidian, enderchests, food, and a weapong (if using kill aura)
 - Bind / activate **HWU Highway Builder** to start paving
 - Carry shulkers with enderchests to replenish from, or hold more in your enderchest **(Shulker Restocking) - Loots shulkers in second and third row if said shulkers contain enderchest**
-- 
+- DO NOT CONFIGURE PICKAXE / SHULKER TO A SLOT, THESE ITEMS ARE FORCED IN FIRST AND LAST SLOT
 
 ## Statistics (HUD)
 - Configure stats in Hud > Edit > Add hud element > HWU > Stats Viewer
