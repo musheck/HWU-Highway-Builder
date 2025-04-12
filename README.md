@@ -8,8 +8,9 @@
 </div>
 
 <div align="center">
-    <a href="https://github.com/musheck/HWU-Highway-Builder/releases"><img src="https://img.shields.io/badge/Version-v0.1.5_beta-red" alt="Version"></a>
+    <a href="https://github.com/musheck/HWU-Highway-Builder/releases"><img src="https://img.shields.io/github/v/release/musheck/HWU-Highway-Builder?display_name=release&color=red" alt="Version"></a>
     <img src="https://img.shields.io/badge/MC%20Version-1.21.1_1.21.4-red" alt="Minecraft Version"> 
+    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.codetabs.com%2Fv1%2Floc%2F%3Fgithub%3Dmusheck%2FHWU-Highway-Builder&query=%24%5B-1%3A%5D.linesOfCode&label=lines%20of%20code&color=red" alt="Lines of code">
     <img src="https://img.shields.io/github/downloads/musheck/HWU-Highway-Builder/total?color=red&label=Total Downloads" alt="Total Downloads">
     <br>
     <p>
