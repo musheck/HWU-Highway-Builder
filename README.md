@@ -14,7 +14,7 @@
     <img src="https://img.shields.io/github/downloads/musheck/HWU-Highway-Builder/total?color=red&label=Total Downloads" alt="Total Downloads">
     <br>
     <p>
-    <a href="https://discord.gg/2BtEW7fT"><img src="https://invidget.switchblade.xyz/2BtEW7fT" alt="HWU Highway Builder Logo"></a>
+    <a href="https://discord.gg/highways"><img src="https://invidget.switchblade.xyz/highways" alt="HWU Highway Builder Logo"></a>
     </p>
 </div>
 
